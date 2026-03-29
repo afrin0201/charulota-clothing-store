@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Clothing Store</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
+        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 400px; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🛍️ Create Account</h2>
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Email">
+        
+        <input type="tel" id="phone_number" placeholder="Phone Number (e.g. 01712345678)">
+        
+        <input type="password" id="password" placeholder="Password">
+        <textarea id="address" placeholder="Delivery Address"></textarea>
+        
+        <button onclick="signup()">Register Now</button>
+        <p>Back to <a href="login.html">Login</a></p>
+    </div>
+
+   <script>
+    async function signup() {
+        console.log("Attempting to register...");
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const address = document.getElementById('address').value;
+        
+        const phone_number = document.getElementById('phone_number').value;
+
+        if (!phone_number) {
+            alert("Please enter a phone number.");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password, address, phone_number })
+            });
+
+            const data = await res.json();
+            console.log("Server Response:", data);
+
+            if (res.ok) {
+                alert("Success! Account created.");
+                window.location.href = 'login.html';
+            } else {
+                alert("Registration Failed: " + (data.message || data.error));
+            }
+        } catch (error) {
+            console.error("Network Error:", error);
+            alert("Could not connect to the server.");
+        }
+    }
+</script>
+</body>
+</html>

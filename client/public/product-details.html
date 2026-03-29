@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details - Charulota</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f9f9f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .product-flex { display: flex; gap: 30px; margin-bottom: 40px; }
+        .product-img { width: 400px; height: 400px; object-fit: cover; border-radius: 8px; }
+        .qa-section { border-top: 2px solid #eee; padding-top: 20px; }
+        .qa-item { background: #f3f3f3; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .answer { margin-left: 20px; color: #d63384; font-weight: 500; border-left: 3px solid #d63384; padding-left: 10px; margin-top: 10px; }
+        textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; padding: 10px; }
+        button { background: #333; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button onclick="location.href='home.html'">← Back to Shop</button>
+    
+    <div class="product-flex">
+        <img id="p-img" src="" class="product-img">
+        <div>
+            <h1 id="p-name">Loading...</h1>
+            <div id="past-purchase-info"></div>
+            <h2 id="p-price" style="color: #d63384;"></h2>
+            <p id="p-desc"></p>
+            <p><strong>Brand:</strong> <span id="p-brand"></span></p>
+
+            <div class="selection-section" style="margin-top: 20px; padding: 15px; background: #fff0f6; border-radius: 8px;">
+    <div style="margin-bottom: 10px;">
+        <label><strong>Color:</strong></label>
+        <select id="det-color" onchange="checkStock()" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
+    </div>
+    <div style="margin-bottom: 15px;">
+        <label><strong>Size:</strong></label>
+        <select id="det-size" onchange="checkStock()" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
+    </div>
+    
+    <div id="stock-status" style="margin-bottom: 10px; font-weight: bold; font-size: 0.9em;"></div>
+    
+    <button id="add-to-cart-btn" onclick="addToCart()" disabled 
+            style="width: 100%; background: #ccc; transition: 0.3s;">
+        Select Color & Size
+    </button>
+</div>
+        </div>
+    </div>
+<div id="review-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+    <h4>Leave a Review</h4>
+    <select id="r-rating">
+        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+        <option value="4">⭐⭐⭐⭐ (4)</option>
+        <option value="3">⭐⭐⭐ (3)</option>
+    </select>
+    <textarea id="r-text" placeholder="Share your experience..."></textarea>
+    <button onclick="submitReview()">Post Review</button>
+</div>
+    <div class="qa-section">
+        <h3>Community Q&A</h3>
+        <div id="qa-list">Loading questions...</div>
+        
+        <hr>
+        <h4>Have a question?</h4>
+        <textarea id="q-text" placeholder="Type your question here..."></textarea>
+        <button onclick="postQuestion()">Submit Question</button>
+    </div>
+</div>
+
+<script>
+ const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get('id');
+let currentVariantId = null; // Global variable to track the user's selection
+
+
+
+async function checkReviewEligibility() {
+    const customerId = localStorage.getItem('customerId');
+    const reviewSection = document.getElementById('review-section');
+
+    if (!customerId) {
+        reviewSection.innerHTML = "<p>Please login to leave a review.</p>";
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/products/check-purchase?cid=${customerId}&pid=${productId}`);
+        const data = await res.json();
+
+        if (!data.eligible) {
+            reviewSection.style.display = 'none';
+        }
+    } catch (err) {
+        console.error("Eligibility check failed:", err);
+    }
+}
+
+async function initPage() {
+    if (!productId) {
+        alert("Product ID is missing in the URL.");
+        return;
+    }
+    
+    await loadProductDetails();    
+    await loadAvailableOptions(); 
+    await loadQA();               
+    await checkReviewEligibility();
+    await checkPastPurchases(productId);
+}
+
+async function loadProductDetails() {
+    try {
+        const res = await fetch(`/api/products`);
+        const products = await res.json();
+        const p = products.find(x => x.PRODUCT_ID == productId);
+
+        if (p) {
+            document.getElementById('p-name').innerText = p.PRODUCT_NAME;
+            document.getElementById('p-price').innerText = `$${p.BASE_PRICE}`;
+            document.getElementById('p-desc').innerText = p.DESCRIPTION;
+            document.getElementById('p-brand').innerText = p.BRAND;
+            document.getElementById('p-img').src = p.PHOTOS || 'https://via.placeholder.com/400';
+        }
+    } catch (err) {
+        console.error("Error loading basic details:", err);
+    }
+}
+async function loadAvailableOptions() {
+    try {
+        const res = await fetch(`/api/products/details/${productId}`);
+        const data = await res.json();
+
+        const colorSelect = document.getElementById('det-color');
+        const sizeSelect = document.getElementById('det-size');
+
+        colorSelect.innerHTML = '<option value="">-- Choose Color --</option>' + 
+            data.colors.map(c => `<option value="${c.COLOR_ID}">${c.COLOR_NAME}</option>`).join('');
+
+        sizeSelect.innerHTML = '<option value="">-- Choose Size --</option>' + 
+            data.sizes.map(s => `<option value="${s.SIZE_ID}">${s.SIZE_LABEL}</option>`).join('');
+
+    } catch (err) {
+        console.error("Error loading dropdown options:", err);
+    }
+}
+async function updateCartUI() {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+
+    try {
+        const res = await fetch(`/api/cart/${customerId}`);
+        const cartItems = await res.json();
+        
+        const cartNav = document.getElementById('cart-nav');
+        if (cartNav) {
+            cartNav.innerText = `Cart (${cartItems.length})`;
+            cartNav.style.fontWeight = 'bold';
+            cartNav.style.color = '#d63384';
+        }
+    } catch (err) {
+        console.error("Failed to update cart UI:", err);
+    }
+}
+
+updateCartUI();
+async function checkStock() {
+    const cId = document.getElementById('det-color').value;
+    const sId = document.getElementById('det-size').value;
+    const btn = document.getElementById('add-to-cart-btn');
+    const status = document.getElementById('stock-status');
+
+    if (!cId || !sId) return;
+
+    try {
+        const res = await fetch(`/api/admin/get-stock?productId=${productId}&colorId=${cId}&sizeId=${sId}`);
+        const data = await res.json();
+
+        const stock = data.stock_quantity !== undefined ? data.stock_quantity : data.STOCK_QUANTITY;
+        const vId = data.variant_id !== undefined ? data.variant_id : data.VARIANT_ID;
+
+        if (vId && stock > 0) {
+            currentVariantId = vId;
+            btn.disabled = false;
+            btn.innerText = "Add to Cart";
+            btn.style.background = "#d63384"; // Pink active color
+            status.innerText = `In Stock: ${stock} available`;
+            status.style.color = "green";
+        } else {
+            currentVariantId = null;
+            btn.disabled = true;
+            btn.innerText = "Out of Stock";
+            btn.style.background = "#ccc";
+            status.innerText = "This combination is currently unavailable.";
+            status.style.color = "red";
+        }
+    } catch (err) {
+        console.error("Stock check error:", err);
+    }
+}
+
+async function addToCart() {
+   const customerId = localStorage.getItem('customerId');
+    console.log("Debug - Adding to cart:", { customerId, variantId: currentVariantId }); // CHECK THIS
+
+    if (!customerId) return alert("Please login first! customerId is missing.");
+    if (!currentVariantId) return alert("Please select a valid color and size.");
+    const res = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId, variantId: currentVariantId, quantity: 1 })
+    });
+
+    if (res.ok) {
+        alert("Success! Added to cart.");
+        await updateCartUI();
+        updateCartCounter();
+
+        localStorage.setItem('cartTimestamp', Date.now());
+        const btn = document.getElementById('add-to-cart-btn');
+        btn.innerText = "✓ Added to Cart";
+        btn.style.background = "#28a745"; 
+        
+        setTimeout(() => {
+            btn.innerText = "Add to Cart";
+            btn.style.background = "#d63384";
+        }, 2000);
+    } else {
+        alert("Could not add to cart. Please try again.");
+    }
+}
+async function updateCartCounter() {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+
+    try {
+        const res = await fetch(`/api/cart/${customerId}`);
+        const items = await res.json();
+        
+        const countElement = document.getElementById('cart-count');
+        if (countElement) {
+            countElement.innerText = items.length; 
+            countElement.style.transform = "scale(1.2)";
+            setTimeout(() => { countElement.style.transform = "scale(1)"; }, 200);
+        }
+    } catch (err) {
+        console.error("Counter refresh failed:", err);
+    }
+}
+
+async function submitReview() {
+    const customerId = localStorage.getItem('customerId');
+    const rating = document.getElementById('r-rating').value;
+    const text = document.getElementById('r-text').value;
+
+    if(!customerId) return alert("Please login to leave a review.");
+
+    const res = await fetch('/api/products/review', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ customerId, productId, rating, text })
+    });
+
+    if(res.ok) {
+        alert("Review posted!");
+        location.reload(); 
+    } else {
+        const result = await res.json();
+        alert(result.error || "Failed to post review.");
+    }
+}
+async function checkPastPurchases(productId) {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+
+    const res = await fetch(`/api/products/purchase-history?customerId=${customerId}&productId=${productId}`);
+    const history = await res.json();
+
+    const historyContainer = document.getElementById('past-purchase-info');
+    
+    if (history && history.length > 0) {
+        // Show a "You bought this before" message
+        const lastOrder = history[0];
+        const date = new Date(lastOrder.ORDER_DATE).toLocaleDateString();
+        
+        historyContainer.innerHTML = `
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #2196f3;">
+                <strong>✨ You've purchased this before!</strong><br>
+                Last ordered on ${date} (Order #${lastOrder.ORDER_ID}).<br>
+                Total bought: ${history.length} time(s).
+            </div>
+        `;
+    }
+}
+async function loadQA() {
+    try {
+        const res = await fetch(`/api/qa/${productId}`);
+        const data = await res.json();
+        const list = document.getElementById('qa-list');
+        
+        if (!data || data.length === 0) {
+            list.innerHTML = '<p>No questions yet. Be the first to ask!</p>';
+            return;
+        }
+
+        list.innerHTML = data.map(item => {
+            const qText = item.QUESTION_TEXT || item.question_text || 'No question text';
+            const aText = item.ANSWER_TEXT || item.answer_text;
+            const aName = item.ADMIN_NAME || item.admin_name || 'Support';
+
+            return `
+            <div class="qa-item">
+                <p><strong>Question:</strong> ${qText}</p>
+                ${aText ? `
+                    <div class="answer">
+                        <p><strong>Admin ${aName}:</strong> ${aText}</p>
+                    </div>
+                ` : `<p style="color:gray; font-size:0.8em;">(Awaiting admin response...)</p>`}
+            </div>`;
+        }).join('');
+    } catch (err) {
+        console.error("QA Load Error:", err);
+    }
+}
+
+async function postQuestion() {
+    const text = document.getElementById('q-text').value;
+    const customerId = localStorage.getItem('customerId');
+
+    if(!customerId) return alert("Please login to ask a question!");
+    if(!text) return alert("Write something first!");
+
+    const res = await fetch('/api/qa/ask', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ customerId, productId, text })
+    });
+
+    if(res.ok) {
+        alert("Question posted!");
+        document.getElementById('q-text').value = '';
+        loadQA(); 
+    }
+}
+
+initPage();
+</script>
+</body>
+</html>
+
+

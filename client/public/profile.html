@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - Charulota</title>
+    <style>
+        :root { --accent: #d63384; --dark: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; margin: 0; padding: 40px; }
+        .profile-card { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        
+        /* New Styles for Inputs */
+        .info-group { margin-bottom: 15px; }
+        .info-group label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--dark); }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        textarea { height: 60px; resize: none; }
+        
+        .order-box { border: 1px solid #eee; margin-top: 20px; padding: 20px; border-radius: 10px; background: #fff; }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; font-weight: bold; }
+        .item-row { display: flex; justify-content: space-between; font-size: 0.9em; color: #555; margin: 5px 0; }
+        .status { color: #28a745; background: #e8f5e9; padding: 2px 8px; border-radius: 5px; font-size: 0.8em; }
+        
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        button { background: var(--dark); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; flex: 1; }
+        .btn-save { background: #28a745; }
+        .btn-save:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+    <div class="profile-card">
+        <h1>🌸 My Profile</h1>
+        
+        <div id="user-info">
+            <p><strong>Customer:</strong> <span id="display-name"></span></p>
+            <p><strong>Email/ID:</strong> #<span id="display-id"></span></p>
+            
+            <div class="info-group">
+                <label>Phone Number</label>
+                <input type="tel" id="edit-phone" placeholder="No phone number saved">
+            </div>
+            
+            <div class="info-group">
+                <label>Delivery Address</label>
+                <textarea id="edit-address" placeholder="No address saved"></textarea>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button onclick="location.href='home.html'">Back to Shopping</button>
+            <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+        </div>
+
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        
+        <h3>Recent Orders</h3>
+        <div id="order-history-container">Loading orders...</div>
+    </div>
+
+    <script>
+        const cId = localStorage.getItem('customerId');
+        const uName = localStorage.getItem('userName');
+
+        document.getElementById('display-name').innerText = uName;
+        document.getElementById('display-id').innerText = cId;
+async function fetchUserDetails() {
+    try {
+        const res = await fetch(`/api/customer/${cId}`);
+        const data = await res.json();
+        
+        if (data) {
+            document.getElementById('edit-phone').value = data.PHONE_NUMBER || '';
+            document.getElementById('edit-address').value = data.ADDRESS || '';
+        }
+    } catch (err) {
+        console.error("Error loading profile:", err);
+    }
+}
+
+        async function updateProfile() {
+            const phone = document.getElementById('edit-phone').value;
+            const address = document.getElementById('edit-address').value;
+
+            try {
+                const res = await fetch('/api/customer/update-profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: cId, phone_number: phone, address: address })
+                });
+
+                if (res.ok) {
+                    alert("Profile updated successfully!");
+                } else {
+                    alert("Failed to save profile.");
+                }
+            } catch (err) {
+                alert("Network error. Please try again.");
+            }
+        }
+
+        async function fetchMyOrders() {
+            const res = await fetch(`/api/my-orders/${cId}`);
+            const data = await res.json();
+            const container = document.getElementById('order-history-container');
+            if (data.length === 0) {
+                container.innerHTML = "<p>You haven't placed any orders yet.</p>";
+                return;
+            }
+
+            const orders = {};
+            data.forEach(row => {
+                const [id, date, total, status, prodName, qty, price] = row;
+                if (!orders[id]) {
+                    orders[id] = { date, total, status, items: [] };
+                }
+                orders[id].items.push({ prodName, qty, price });
+            });
+
+            const sortedOrderIds = [];
+            data.forEach(row => {
+                if(!sortedOrderIds.includes(row[0])) sortedOrderIds.push(row[0]);
+            });
+
+            container.innerHTML = sortedOrderIds.map(orderId => {
+                const o = orders[orderId];
+                return `
+                    <div class="order-box">
+                        <div class="order-header">
+                            <span>Order #${orderId}</span>
+                            <span class="status">${o.status}</span>
+                        </div>
+                        <div style="font-size: 0.8em; color: #888; margin-bottom: 10px;">
+                            Placed on: ${new Date(o.date).toLocaleDateString()}
+                        </div>
+                        ${o.items.map(i => `
+                            <div class="item-row">
+                                <span>${i.prodName} (x${i.qty})</span>
+                                <span>$${(i.qty * i.price).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        <div style="text-align: right; margin-top: 10px; font-weight: bold; border-top: 1px dashed #eee; padding-top: 10px;">
+                            Total Paid: $${o.total.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        fetchUserDetails();
+        fetchMyOrders();   
+    </script>
+</body>
+</html>

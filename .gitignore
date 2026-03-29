@@ -1,0 +1,13 @@
+# Ignore the heavy dependencies folder
+node_modules/
+
+# Ignore your private environment variables/passwords
+.env
+
+# Ignore log files
+*.log
+npm-debug.log*
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db

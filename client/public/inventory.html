@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Inventory Management</h2>
+    <table border="1">
+       <thead>
+    <tr style="background:#f8f9fa; text-align:left;">
+        <th>Product Name</th>
+        <th>Variant (Color/Size)</th> <th>Current Stock</th>
+        <th>Action</th>
+    </tr>
+</thead>
+        <tbody id="inventory-list"></tbody>
+    </table>
+
+    <script>
+async function loadInventory() {
+    try {
+        const res = await fetch('/api/admin/inventory');
+        const data = await res.json();
+        const list = document.getElementById('inventory-list');
+        
+        list.innerHTML = data.map(v => {
+            const name = v.PRODUCT_NAME || v.product_name;
+            const color = v.COLOR_NAME || v.color_name;
+            const size = v.SIZE_NAME || v.size_name;
+            const stock = v.STOCK_QUANTITY ?? v.stock_quantity ?? 0;
+            const vId = v.VARIANT_ID || v.variant_id;
+
+            return `
+                <tr>
+                    <td><b>${name}</b></td>
+                    <td><span class="status-tag">${color} / ${size}</span></td>
+                    <td>
+                        <input type="number" id="stock-${vId}" value="${stock}" style="width:70px;">
+                    </td>
+                    <td>
+                        <button class="btn-approve" onclick="updateStock(${vId})">Save</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error("Inventory Load Error:", err);
+    }
+}
+
+async function updateStock(variantId) {
+    const newStock = document.getElementById(`stock-${variantId}`).value;
+    const res = await fetch('/api/admin/update-stock', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ variantId, newStock }) 
+    });
+    if(res.ok) {
+        alert("Stock updated!");
+        loadInventory();
+    }
+}
+        async function updateStock(productId) {
+            const newStock = document.getElementById(`stock-${productId}`).value;
+            await fetch('/api/admin/update-stock', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ productId, newStock })
+            });
+            alert("Stock Updated!");
+            loadInventory(); 
+        }
+
+        loadInventory();
+    </script>
+</body>
+</html>
