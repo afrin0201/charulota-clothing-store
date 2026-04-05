@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Wishlist - Charulota</title>
+    <style>
+        :root {
+            --accent: #d63384;
+            --dark: #333;
+            --bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: var(--bg);
+        }
+
+        nav {
+            background: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-name {
+            color: var(--accent);
+            font-family: 'Georgia', serif;
+            margin: 0;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent);
+            padding-left: 15px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--dark);
+        }
+
+        .page-header span {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 9px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .wishlist-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .wishlist-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .wishlist-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-brand {
+            color: #888;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-name {
+            font-weight: 600;
+            font-size: 1em;
+            margin: 5px 0;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .card-name:hover {
+            color: var(--accent);
+        }
+
+        .card-variant {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .card-price {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #bbb;
+            font-size: 0.85em;
+            font-weight: normal;
+            margin-right: 6px;
+        }
+
+        .discount-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-cart {
+            flex: 1;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        .btn-cart:hover {
+            background: #b5226e;
+        }
+
+        .btn-remove {
+            background: white;
+            color: #ccc;
+            border: 1px solid #eee;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: 0.2s;
+            width: auto;
+        }
+
+        .btn-remove:hover {
+            background: #fff0f6;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .remove-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            transition: 0.2s;
+            padding: 0;
+            width: 32px;
+        }
+
+        .remove-icon:hover {
+            color: var(--accent);
+            box-shadow: 0 2px 8px rgba(214, 51, 132, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #aaa;
+        }
+
+        .empty-state .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            color: #bbb;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            margin-bottom: 25px;
+        }
+
+        .btn-shop {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            width: auto;
+        }
+
+        .btn-shop:hover {
+            background: #b5226e;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 20px;
+            font-size: 0.9em;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #aaa;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2 class="brand-name" onclick="location.href='home.html'">🌸 Charulota</h2>
+        <div style="display: flex; align-items: center;">
+            <span id="welcome-msg" style="font-weight: 500; color: var(--dark);"></span>
+            <a href="home.html" class="nav-link">🏠 Shop</a>
+            <a href="profile.html" class="nav-link">👤 Profile</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>❤️ My Wishlist</h1>
+            <span id="wishlist-count">0</span>
+        </div>
+
+        <div id="wishlist-container">
+            <div class="loading">Loading your wishlist...</div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+<script>
+    if (!localStorage.getItem('customerId') || !localStorage.getItem('userName')) {
+        window.location.href = 'login.html';
+    }
+
+    const customerId = localStorage.getItem('customerId');
+    const userName = localStorage.getItem('userName');
+
+    if (!customerId) {
+        window.location.href = 'login.html';
+    }
+
+    document.getElementById('welcome-msg').innerText = "Hello, " + (userName || '');
+
+    let currentWishlistId = null;
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.className = `toast show ${type}`;
+        setTimeout(() => { toast.className = 'toast'; }, 2800);
+    }
+
+    async function loadWishlist() {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/wishlist/${customerId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.status === 401) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const data = await res.json();
+            currentWishlistId = data.wishlistId;
+            const items = data.items || [];
+            const container = document.getElementById('wishlist-container');
+            document.getElementById('wishlist-count').innerText = items.length;
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">💔</div>
+                        <h2>Your wishlist is empty</h2>
+                        <p>Save items you love and come back to them anytime.</p>
+                        <button class="btn-shop" onclick="location.href='home.html'">
+                            Browse Collection
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="wishlist-grid">${items.map(item => renderCard(item)).join('')}</div>`;
+
+        } catch (err) {
+            console.error("Load wishlist error:", err);
+            document.getElementById('wishlist-container').innerHTML =
+                '<p style="text-align:center; color:#aaa; padding:40px;">Failed to load wishlist. Please try again.</p>';
+        }
+    }
+
+    function renderCard(item) {
+        const hasDiscount = item.DISCOUNT_PERCENT && item.DISCOUNT_PERCENT > 0;
+        const priceHTML = hasDiscount
+            ? `<span class="old-price">$${item.ORIGINAL_PRICE}</span>
+               $${item.CURRENT_PRICE}
+               <span class="discount-badge">${item.DISCOUNT_PERCENT}% OFF</span>`
+            : `$${item.ORIGINAL_PRICE}`;
+
+        return `
+        <div class="wishlist-card" id="card-${item.WISHLIST_ITEM_ID}">
+            <button class="remove-icon" onclick="removeItem(${item.WISHLIST_ITEM_ID})" title="Remove from wishlist">✕</button>
+         <img src="${item.PHOTOS && item.PHOTOS.trim() !== '' ? item.PHOTOS : 'https://placehold.co/400x220/fdf2f8/be185d?text=No+Image'}"
+     onclick="location.href='product-details.html?id=${item.PRODUCT_ID}'"
+     alt="Product Image"
+     onerror="this.onerror=null;this.src='https://placehold.co/400x220/fdf2f8/be185d?text=No+Image'"
+     style="width:100%; height:220px; object-fit:cover; cursor:pointer;">
+            <div class="card-body">
+                <div class="card-brand">${item.BRAND || 'Charulota'}</div>
+                <div class="card-name" onclick="location.href='product-details.html?id=${item.PRODUCT_ID}'">
+                    ${item.PRODUCT_NAME}
+                </div>
+                <div class="card-variant">
+                    ${item.COLOR_NAME} · Size ${item.SIZE_LABEL}
+                </div>
+                <div class="card-price">${priceHTML}</div>
+                <div class="card-actions">
+                    <button class="btn-cart" onclick="moveToCart(${item.WISHLIST_ITEM_ID}, ${item.VARIANT_ID})">
+                        🛒 Move to Cart
+                    </button>
+                    <button class="btn-remove" onclick="removeItem(${item.WISHLIST_ITEM_ID})" title="Remove">🗑️</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    async function removeItem(wishlistItemId) {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/wishlist/remove', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ wishlistItemId })
+            });
+
+            if (res.ok) {
+                const card = document.getElementById(`card-${wishlistItemId}`);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => loadWishlist(), 300);
+                }
+                showToast('Removed from wishlist');
+            } else {
+                showToast('Failed to remove item', 'error');
+            }
+        } catch (err) {
+            console.error("Remove error:", err);
+            showToast('Something went wrong', 'error');
+        }
+    }
+
+    async function moveToCart(wishlistItemId, variantId) {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/wishlist/move-to-cart', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ customerId, variantId, wishlistItemId })
+            });
+
+            if (res.ok) {
+                const card = document.getElementById(`card-${wishlistItemId}`);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => loadWishlist(), 300);
+                }
+                showToast('✓ Added to cart!');
+            } else {
+                const err = await res.json();
+                showToast(err.error || 'Failed to move to cart', 'error');
+            }
+        } catch (err) {
+            console.error("Move to cart error:", err);
+            showToast('Something went wrong', 'error');
+        }
+    }
+
+    loadWishlist();
+</script>
+
+</body>
+
+</html>

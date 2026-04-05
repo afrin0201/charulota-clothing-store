@@ -1,392 +1,940 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Charulota Admin</title>
+    <meta charset="UTF-8">
+    <title>Charulota — Admin Panel</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <style>
-        table th,
-        table td {
-            border-bottom: 1px solid #ddd;
-            padding: 12px;
+        :root {
+            --accent: #c2185b;
+            --accent-light: #f8bbd0;
+            --accent-soft: #fff0f6;
+            --dark: #1a1a2e;
+            --mid: #4a4a6a;
+            --sidebar-bg: #12121f;
+            --sidebar-hover: #1e1e35;
+            --sidebar-active: #c2185b;
+            --light: #f5f4f8;
+            --white: #ffffff;
+            --border: #ede8f0;
+            --success: #2e7d32;
+            --success-bg: #e8f5e9;
+            --danger: #c62828;
+            --danger-bg: #fde8e8;
+            --warning-bg: #fff8e1;
+            --warning: #f57f17;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: sans-serif;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--light);
+            color: var(--dark);
             display: flex;
-            margin: 0;
-            background: #f0f2f5;
+            min-height: 100vh;
         }
 
+        /* ── SIDEBAR ── */
         #sidebar {
-            width: 250px;
-            background: #333;
-            color: white;
+            width: 260px;
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
             height: 100vh;
-            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
 
+        .sidebar-brand {
+            padding: 28px 24px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .sidebar-brand h2 {
+            font-family: 'Playfair Display', serif;
+            color: white;
+            font-size: 1.35em;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-brand p {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.75em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            padding: 16px 12px;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 0.68em;
+            color: rgba(255, 255, 255, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 12px 12px 6px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.88em;
+            font-weight: 500;
+            transition: all 0.18s;
+            margin-bottom: 2px;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-item.active {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-item .nav-icon {
+            font-size: 1.1em;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.75em;
+        }
+
+        /* ── CONTENT ── */
         #content {
-            flex-grow: 1;
-            padding: 40px;
+            flex: 1;
+            padding: 0;
+            overflow-y: auto;
         }
 
+        .content-header {
+            background: white;
+            padding: 22px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .content-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: var(--dark);
+        }
+
+        .content-header p {
+            color: var(--mid);
+            font-size: 0.85em;
+            margin-top: 2px;
+        }
+
+        .admin-badge {
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .content-body {
+            padding: 32px 40px;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* ── CARDS ── */
         .card {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(26, 26, 46, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25em;
+            color: var(--dark);
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── FORM ELEMENTS ── */
+        label {
+            display: block;
+            font-size: 0.78em;
+            font-weight: 600;
+            color: var(--mid);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            margin-top: 16px;
+        }
+
+        label:first-child {
+            margin-top: 0;
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9em;
+            color: var(--dark);
+            background: var(--light);
+            outline: none;
+            transition: border-color 0.2s;
+            margin: 0 0 4px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            background: white;
+        }
+
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            width: auto;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #a3145a;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1b5e20;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            padding: 13px;
         }
 
         .btn-approve {
-            background: #28a745;
+            background: var(--success);
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            border-radius: 4px;
+            font-size: 0.82em;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
         }
 
+        /* ── TABLES ── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88em;
+        }
+
+        .data-table thead tr {
+            background: var(--light);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .data-table th {
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--mid);
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fdf8fb;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ── STATUS TAGS ── */
         .status-tag {
-            background: #fff3cd;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: bold;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status-pending {
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .status-shipped {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-paid {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .status-approved {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        /* ── INVENTORY GRID ── */
+        .size-card {
+            background: var(--light);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .size-card label {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: var(--dark);
+            text-transform: none;
+            letter-spacing: 0;
+            margin: 0 0 6px;
+        }
+
+        .size-card .stock-count {
+            font-size: 0.75em;
+            color: var(--mid);
+            margin-bottom: 8px;
+        }
+
+        .size-card input {
+            width: 70px;
+            text-align: center;
+            margin: 0 auto;
+            display: block;
+            padding: 7px;
+            border-color: var(--accent-light);
+        }
+
+        /* ── SECTION VISIBILITY ── */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* ── TWO-COL FORM ── */
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row>div {
+            flex: 1;
+        }
+
+        
+        #discounts-list table,
+        #returns-container table,
+        #qa-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+      
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-light);
+            border-radius: 6px;
         }
     </style>
 </head>
 
 <body>
 
-   <div id="sidebar">
-    <h2>Admin Panel</h2>
-    <p style="cursor:pointer" onclick="showSection('add-prod')">➕ Add Product</p>
-    <p style="cursor:pointer" onclick="showSection('manage-orders')">📦 Manage Orders</p>
-    <p style="cursor:pointer" onclick="showSection('manage-qa')">💬 Q&A Forum</p>
-    <p style="cursor:pointer" onclick="showSection('manage-inventory')">📊 Manage Inventory</p>
-</div>
-
-    <div id="content">
-       <div id="section-inventory" class="card" style="display:none;">
-    <h3>Bulk Stock Management</h3>
-    
-    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-        <div style="flex: 2;">
-            <label>1. Select Product</label>
-            <select id="inv-product" onchange="loadColorStock()"></select>
-        </div>
-        <div style="flex: 1;">
-            <label>2. Select Color</label>
-            <select id="inv-color" onchange="loadColorStock()"></select>
-        </div>
-    </div>
-
-    <div id="inventory-status-msg" style="color: #666; margin-bottom: 10px; font-style: italic;">
-        Select product and color to view stock...
-    </div>
-
-    <div id="size-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
-        </div>
-
-    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-        <button class="btn-approve" onclick="saveAllVisibleStock()" style="width: 100%; padding: 15px; font-weight: bold;">
-            Update All Sizes for this Color
-        </button>
-    </div>
-</div>
   
-
-        <div id="section-manage-qa" class="card" style="display:none;">
-    <h3>Manage Customer Questions</h3>
-    <div id="qa-container">
+    <div id="sidebar">
+        <div class="sidebar-brand">
+            <h2>🌸 Charulota</h2>
+            <p>Admin Dashboard</p>
         </div>
-</div>
 
-        <div id="section-add-prod" class="card">
-            <h3>Add New Product</h3>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Catalogue</div>
+            <button class="nav-item active" id="nav-add-prod" onclick="showSection('add-prod')">
+                <span class="nav-icon">➕</span> Add Product
+            </button>
+            <button class="nav-item" id="nav-manage-inventory" onclick="showSection('manage-inventory')">
+                <span class="nav-icon">📊</span> Manage Inventory
+            </button>
+            <button class="nav-item" id="nav-manage-discounts" onclick="showSection('manage-discounts')">
+                <span class="nav-icon">🏷️</span> Discounts
+            </button>
 
-            <label>General Info</label>
-            <input type="text" id="p-name" placeholder="Product Name">
-            <input type="text" id="p-brand" placeholder="Brand">
-            <input type="number" id="p-price" placeholder="Base Price">
+            <div class="nav-label" style="margin-top:8px;">Operations</div>
+            <button class="nav-item" id="nav-manage-orders" onclick="showSection('manage-orders')">
+                <span class="nav-icon">📦</span> Manage Orders
+            </button>
+            <button class="nav-item" id="nav-manage-returns" onclick="showSection('manage-returns')">
+                <span class="nav-icon">↩️</span> Return Requests
+            </button>
+            <button class="nav-item" id="nav-manage-qa" onclick="showSection('manage-qa')">
+                <span class="nav-icon">💬</span> Q&amp;A Forum
+            </button>
+        </nav>
 
-            <label>Category</label>
-            <select id="p-cat">
-                <option value="1">Saree / Women</option>
-                <option value="2">Men's Wear</option>
-                <option value="3">Jewellery</option>
-                <option value="4">Accessories</option>
-            </select>
+        <div class="sidebar-footer">© 2026 Charulota</div>
+    </div>
 
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label>Color</label>
-                    <select id="p-color">
-                        <option value="1">Red</option>
-                        <option value="2">Blue</option>
-                        <option value="3">Black</option>
-                       
+  
+    <div id="content">
+
+   
+        <div class="content-header">
+            <div>
+                <h1 id="section-title">Add Product</h1>
+                <p id="section-subtitle">Add a new item to the catalogue</p>
+            </div>
+            <span class="admin-badge">👤 Admin</span>
+        </div>
+
+        <div class="content-body">
+
+            <div id="section-add-prod" class="section active">
+                <div class="card">
+                    <h3>Product Information</h3>
+                    <label>Product Name</label>
+                    <input type="text" id="p-name" placeholder="e.g. Silk Embroidered Saree">
+
+                    <label>Brand</label>
+                    <input type="text" id="p-brand" placeholder="e.g. Charulota">
+
+                    <label>Base Price ($)</label>
+                    <input type="number" id="p-price" placeholder="e.g. 49.99">
+
+                    <label>Category</label>
+                    <select id="p-cat">
+                        <option value="1">Women</option>
+                        <option value="2">Men</option>
+                        <option value="3">Kids</option>
                     </select>
-                </div>
-                <div style="flex: 1;">
-                    <label>Size</label>
-                    <select id="p-size">
-                        <option value="1">32</option>
-                        <option value="2">34</option>
-                        <option value="3">36</option>
-                        <option value="4">38</option>
-                        <option value="5">40</option>
-                        <option value="6">42</option>
-                        <option value="7">44</option>
-                        <option value="8">46</option>
-                    </select>
+
+                    <div class="form-row">
+                        <div>
+                            <label>Color</label>
+                            <select id="p-color">
+                                <option value="1">Red</option>
+                                <option value="2">Blue</option>
+                                <option value="3">Black</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Size</label>
+                            <select id="p-size">
+                                <option value="1">32</option>
+                                <option value="2">34</option>
+                                <option value="3">36</option>
+                                <option value="4">38</option>
+                                <option value="5">40</option>
+                                <option value="6">42</option>
+                                <option value="7">44</option>
+                                <option value="8">46</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label>Initial Stock Quantity</label>
+                    <input type="number" id="p-stock" value="100">
+
+                    <label>Description</label>
+                    <textarea id="p-desc" placeholder="Describe this product..."></textarea>
+
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-primary btn-full" onclick="submitProduct()">
+                            Save Product to Database
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <label>Initial Stock Quantity</label>
-            <input type="number" id="p-stock" value="100">
-            <textarea id="p-desc" placeholder="Description"></textarea>
+            <div id="section-manage-inventory" class="section">
+                <div class="card">
+                    <h3>Bulk Stock Management</h3>
+                    <div class="form-row" style="margin-bottom:20px;">
+                        <div>
+                            <label>Select Product</label>
+                            <select id="inv-product" onchange="loadColorStock()"></select>
+                        </div>
+                        <div>
+                            <label>Select Color</label>
+                            <select id="inv-color" onchange="loadColorStock()"></select>
+                        </div>
+                    </div>
 
-            <button onclick="submitProduct()"
-                style="background: #d63384; color:white; padding:10px; border:none; width:100%; margin-top: 10px; cursor: pointer;">
-                Save Product to Database
-            </button>
-        </div>
-        <div id="section-manage-orders" class="card" style="display:none;">
-            <h3>Manage Customer Orders</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr style="background: #f8f9fa; text-align: left; border-bottom: 2px solid #dee2e6;">
-                        <th style="padding: 12px;">Order ID</th>
-                        <th style="padding: 12px;">Customer</th>
-                        <th style="padding: 12px;">Total Amount</th>
-                        <th style="padding: 12px;">Status</th>
-                        <th style="padding: 12px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="orders-table-body">
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding:20px;">Loading orders...</td>
-                    </tr>
-                </tbody>
-            </table>
+                    <p id="inventory-status-msg"
+                        style="color:var(--mid); font-size:0.85em; font-style:italic; margin-bottom:16px;">
+                        Select product and color to view stock...
+                    </p>
+
+                    <div id="size-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px;"></div>
+
+                    <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+                        <button class="btn btn-success btn-full" onclick="saveAllVisibleStock()">
+                            ✓ Update All Sizes for this Color
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+         
+            <div id="section-manage-discounts" class="section">
+                <div class="card">
+                    <h3>Assign Discount to Product</h3>
+
+                    <label>Select Product</label>
+                    <select id="disc-product"></select>
+
+                    <label>Discount Code</label>
+                    <input type="text" id="disc-code" placeholder="e.g. SALE10">
+
+                    <div class="form-row">
+                        <div>
+                            <label>Percentage Off (%)</label>
+                            <input type="number" id="disc-percent" placeholder="e.g. 10">
+                        </div>
+                        <div>
+                            <label>Start Date</label>
+                            <input type="date" id="disc-start">
+                        </div>
+                        <div>
+                            <label>End Date</label>
+                            <input type="date" id="disc-end">
+                        </div>
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-primary btn-full" onclick="saveDiscount()">Save Discount</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Existing Discounts</h3>
+                    <div id="discounts-list">
+                        <p style="color:var(--mid); font-size:0.9em;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+   
+            <div id="section-manage-orders" class="section">
+                <div class="card">
+                    <h3>All Customer Orders</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <tr>
+                                    <td colspan="5" style="text-align:center; padding:30px; color:var(--mid);">Loading
+                                        orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+    
+            <div id="section-manage-returns" class="section">
+                <div class="card">
+                    <h3>Return Requests</h3>
+                    <div id="returns-container">
+                        <p style="color:var(--mid); font-size:0.9em;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-manage-qa" class="section">
+                <div class="card">
+                    <h3>Pending Customer Questions</h3>
+                    <div id="qa-container">
+                        <p style="color:var(--mid); font-size:0.9em;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+
     <script>
         const adminId = localStorage.getItem('adminId');
         const role = localStorage.getItem('role');
-
         if (!adminId || role !== 'admin') {
             alert("Access Denied! Admins only.");
             window.location.href = 'admin-login.html';
-
         }
-       function showSection(id) {
-    document.getElementById('section-add-prod').style.display = id === 'add-prod' ? 'block' : 'none';
-    document.getElementById('section-manage-orders').style.display = id === 'manage-orders' ? 'block' : 'none';
-    document.getElementById('section-manage-qa').style.display = id === 'manage-qa' ? 'block' : 'none';
-    // Add this line
-    document.getElementById('section-inventory').style.display = id === 'manage-inventory' ? 'block' : 'none';
-    
-    if (id === 'manage-orders') loadAllOrders();
-    if (id === 'manage-qa') loadPendingQuestions();
-    // Add this line
-    if (id === 'manage-inventory') loadInventory(); 
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': localStorage.getItem('token')
+    };
 }
-async function loadPendingQuestions() {
-    console.log("Fetching questions...");
-    try {
-        const res = await fetch('/api/admin/pending-questions');
-        const data = await res.json();
-        const container = document.getElementById('qa-container');
+        const sectionMeta = {
+            'add-prod': { title: 'Add Product', subtitle: 'Add a new item to the catalogue' },
+            'manage-inventory': { title: 'Manage Inventory', subtitle: 'Update stock levels by product and color' },
+            'manage-discounts': { title: 'Discounts', subtitle: 'Assign and manage promotional discounts' },
+            'manage-orders': { title: 'Manage Orders', subtitle: 'View and approve customer orders' },
+            'manage-returns': { title: 'Return Requests', subtitle: 'Review and resolve return requests' },
+            'manage-qa': { title: 'Q&A Forum', subtitle: 'Answer pending customer questions' },
+        };
+
+        function showSection(id) {
         
-        if (data.length === 0) {
-            container.innerHTML = '<p>No pending questions found.</p>';
-            return;
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            const target = document.getElementById('section-' + id);
+            if (target) target.classList.add('active');
+
+            const navBtn = document.getElementById('nav-' + id);
+            if (navBtn) navBtn.classList.add('active');
+
+            const meta = sectionMeta[id] || {};
+            document.getElementById('section-title').innerText = meta.title || '';
+            document.getElementById('section-subtitle').innerText = meta.subtitle || '';
+
+            if (id === 'manage-orders') loadAllOrders();
+            if (id === 'manage-qa') loadPendingQuestions();
+            if (id === 'manage-inventory') loadInventory();
+            if (id === 'manage-discounts') loadDiscounts();
+            if (id === 'manage-returns') loadReturnRequests();
         }
 
-      
-        container.innerHTML = `
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background:#f8f9fa; text-align:left;">
-                        <th style="padding:10px;">Product</th>
-                        <th style="padding:10px;">Question</th>
-                        <th style="padding:10px;">Answer</th>
-                    </tr>
-                </thead>
-                <tbody id="qa-body"></tbody>
-            </table>
-        `;
-
-        const tbody = document.getElementById('qa-body');
-        tbody.innerHTML = data.map(q => `
-            <tr>
-                <td style="padding:10px;">${q.PRODUCT_NAME || q.product_name}</td>
-                <td style="padding:10px;">${q.QUESTION_TEXT || q.question_text}</td>
-                <td style="padding:10px;">
-                    <textarea id="ans-${q.QUESTION_ID || q.question_id}" style="width:100%;" placeholder="Type answer..."></textarea>
-                    <button class="btn-approve" onclick="submitAnswer(${q.QUESTION_ID || q.question_id})">Post Answer</button>
-                </td>
-            </tr>
-        `).join('');
-
-    } catch (err) {
-        console.error("Fetch Error:", err);
-    }
-}
-async function loadInventory() {
-    try {
-        // Fetch Products and Colors to fill the dropdowns first
-        const [pRes, cRes] = await Promise.all([
-            fetch('/api/admin/products-list'),
-            fetch('/api/admin/colors-list')
-        ]);
-        
-        const products = await pRes.json();
-        const colors = await cRes.json();
-
-        document.getElementById('inv-product').innerHTML = products.map(p => 
-            `<option value="${p.PRODUCT_ID}">${p.PRODUCT_NAME}</option>`).join('');
-
-        document.getElementById('inv-color').innerHTML = colors.map(c => 
-            `<option value="${c.COLOR_ID}">${c.COLOR_NAME}</option>`).join('');
-
- 
-        loadColorStock();
-    } catch (err) {
-        console.error("Error initializing inventory UI:", err);
-    }
-}
-async function loadColorStock() {
-    const pId = document.getElementById('inv-product').value;
-    const cId = document.getElementById('inv-color').value;
-    const grid = document.getElementById('size-grid');
-    const msg = document.getElementById('inventory-status-msg');
-
-    try {
-        const res = await fetch(`/api/admin/get-color-stock?productId=${pId}&colorId=${cId}`);
-        const stockData = await res.json();
-
-        const stockMap = {};
-        stockData.forEach(item => {
-            stockMap[item.SIZE_LABEL] = { id: item.VARIANT_ID, qty: item.STOCK_QUANTITY };
-        });
-
-        let html = '';
-        for (let size = 32; size <= 46; size += 2) {
-            const sizeStr = size.toString();
-            const data = stockMap[sizeStr] || { id: null, qty: 0 };
-            
-            html += `
-                <div style="background: #f8f9fa; padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-align:center;">
-                    <label style="font-weight: bold; display: block;">Size ${size}</label>
-                    <div style="font-size: 0.8em; color: ${data.id ? '#666' : '#d63384'}; margin-bottom: 5px;">
-                        ${data.id ? 'Current: ' + data.qty : 'Not Created'}
-                    </div>
-                    <input type="number" 
-                           class="bulk-stock-input" 
-                           data-size="${sizeStr}" 
-                           value="${data.qty}" 
-                           style="width: 70px; text-align: center; margin: 0 auto; border: 1px solid #d63384;">
-                </div>
-            `;
+        async function loadReturnRequests() {
+            try {
+                const res = await fetch('/api/admin/return-requests',{headers: authHeaders()});
+                const data = await res.json();
+                const container = document.getElementById('returns-container');
+                if (!data.length) { container.innerHTML = '<p style="color:var(--mid);">No return requests found.</p>'; return; }
+                container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr>
+                        <th>Return ID</th><th>Order ID</th><th>Customer</th>
+                        <th>Reason</th><th>Date</th><th>Status</th><th>Action</th>
+                    </tr></thead>
+                    <tbody>
+                        ${data.map(r => `
+                        <tr>
+                            <td><strong>#${r.RETURN_ID}</strong></td>
+                            <td>#${r.ORDER_ID}</td>
+                            <td>
+                                <div style="font-weight:600;">${r.CUSTOMER_NAME}</div>
+                                <div style="font-size:0.78em;color:var(--mid);">ID: ${r.CUSTOMER_ID}</div>
+                            </td>
+                            <td style="max-width:180px; font-size:0.85em; color:var(--mid);">${r.RETURN_REASON}</td>
+                            <td style="font-size:0.85em;">${new Date(r.RETURN_DATE).toLocaleDateString()}</td>
+                            <td><span class="status-tag status-${r.STATUS.toLowerCase()}">${r.STATUS}</span></td>
+                            <td>
+                                ${r.STATUS === 'Pending' ? `
+                                    <div style="display:flex; gap:6px;">
+                                        <button class="btn btn-success" style="padding:6px 12px; font-size:0.8em;" onclick="resolveReturn(${r.RETURN_ID}, 'Approved')">✓ Approve</button>
+                                        <button class="btn btn-danger" style="padding:6px 12px; font-size:0.8em;" onclick="resolveReturn(${r.RETURN_ID}, 'Rejected')">✕ Reject</button>
+                                    </div>`
+                        : `<span style="color:#bbb; font-size:0.82em;">Resolved</span>`}
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+            } catch (err) { console.error("Load returns error:", err); }
         }
-        
-        grid.innerHTML = html;
-        msg.innerText = "Enter stock quantities for any size and click 'Update All' below.";
 
-    } catch (err) {
-        console.error("Load Error:", err);
-    }
-}
-async function saveAllVisibleStock() {
-    const pId = document.getElementById('inv-product').value;
-    const cId = document.getElementById('inv-color').value;
-    const inputs = document.querySelectorAll('.bulk-stock-input');
-    
-    
-    for (const input of inputs) {
-        const sizeLabel = input.parentElement.querySelector('label').innerText.replace('Size ', '');
-        const newStockValue = Number(input.value);
+        async function resolveReturn(returnId, status) {
+            if (!confirm(`${status} this return request?`)) return;
+            try {
+                const res = await fetch('/api/admin/resolve-return', {
+                    method: 'POST', headers: authHeaders(),
+                    body: JSON.stringify({ returnId, status })
+                });
+                if (res.ok) loadReturnRequests();
+                else { const err = await res.json(); alert("Error: " + err.error); }
+            } catch (err) { console.error("Resolve return error:", err); }
+        }
 
-        try {
-            const res = await fetch('/api/admin/update-stock', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    productId: Number(pId),
-                    colorId: Number(cId),
-                    sizeLabel: sizeLabel, // Sending "32", "34", etc.
-                    newStock: newStockValue
-                })
+        async function loadDiscounts() {
+            try {
+                const [pRes, dRes] = await Promise.all([
+                    fetch('/api/admin/products-list'),
+                    fetch('/api/admin/discounts-list')
+                ]);
+                const products = await pRes.json();
+                const discounts = await dRes.json();
+
+                document.getElementById('disc-product').innerHTML =
+                    products.map(p => `<option value="${p.PRODUCT_ID}">${p.PRODUCT_NAME}</option>`).join('');
+
+                const container = document.getElementById('discounts-list');
+                if (!discounts.length) { container.innerHTML = '<p style="color:var(--mid);">No discounts yet.</p>'; return; }
+                container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>Product</th><th>Code</th><th>%</th><th>Start</th><th>End</th><th>Action</th></tr></thead>
+                    <tbody>
+                        ${discounts.map(d => `
+                        <tr>
+                            <td style="font-weight:500;">${d.PRODUCT_NAME}</td>
+                            <td><code style="background:var(--light);padding:3px 8px;border-radius:6px;font-size:0.85em;">${d.DISCOUNT_CODE}</code></td>
+                            <td><span class="status-tag" style="background:var(--accent-soft);color:var(--accent);">${d.PERCENTAGE}% OFF</span></td>
+                            <td style="font-size:0.85em;">${new Date(d.START_DATE).toLocaleDateString()}</td>
+                            <td style="font-size:0.85em;">${new Date(d.END_DATE).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-danger" style="padding:5px 12px;font-size:0.8em;" onclick="removeDiscount(${d.DISCOUNT_ID})">Remove</button>
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+            } catch (err) { console.error("Load discounts error:", err); }
+        }
+
+        async function saveDiscount() {
+            const productId = document.getElementById('disc-product').value;
+            const code = document.getElementById('disc-code').value;
+            const percent = document.getElementById('disc-percent').value;
+            const start = document.getElementById('disc-start').value;
+            const end = document.getElementById('disc-end').value;
+            if (!code || !percent || !start || !end) { alert("Please fill in all fields."); return; }
+            const res = await fetch('/api/admin/save-discount', {
+                method: 'POST',headers: authHeaders(),
+                body: JSON.stringify({ productId, code, percent, start, end })
             });
-
-            if (!res.ok) {
-                const error = await res.json();
-                console.error(`Error updating size ${sizeLabel}:`, error);
-            }
-        } catch (err) {
-            console.error("Fetch failed:", err);
+            if (res.ok) {
+                alert("Discount saved!");
+                ['disc-code', 'disc-percent', 'disc-start', 'disc-end'].forEach(id => document.getElementById(id).value = '');
+                loadDiscounts();
+            } else { const err = await res.json(); alert("Error: " + err.error); }
         }
-    }
-    alert("Inventory Update Attempted! Refreshing view...");
-    loadColorStock(); 
-}
-async function handleStockUpdate(sizeId, amount) {
-    const pId = document.getElementById('inv-product').value;
-    const cId = document.getElementById('inv-color').value;
-    
-  
-    const input = document.getElementById(`stock-input-${sizeId}`);
-    const currentVal = parseInt(input.value) || 0;
-    
-  
-    const newTotal = Math.max(0, currentVal + amount);
 
+        async function removeDiscount(discountId) {
+            if (!confirm("Remove this discount?")) return;
+            const res = await fetch('/api/admin/remove-discount', {
+                method: 'POST',headers: authHeaders(),
+                body: JSON.stringify({ discountId })
+            });
+            if (res.ok) { loadDiscounts(); }
+        }
 
-    const res = await fetch('/api/admin/update-stock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            productId: pId, 
-            colorId: cId, 
-            sizeId: sizeId, 
-            newStock: newTotal 
-        })
-    });
+        async function loadPendingQuestions() {
+            try {
+                const res = await fetch('/api/admin/pending-questions', {
+    headers: authHeaders()
+});
+                const data = await res.json();
+                const container = document.getElementById('qa-container');
+                if (!data.length) { container.innerHTML = '<p style="color:var(--mid);">No pending questions found.</p>'; return; }
+                container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>Product</th><th>Question</th><th>Your Answer</th></tr></thead>
+                    <tbody>
+                        ${data.map(q => `
+                        <tr>
+                            <td style="font-weight:500; min-width:120px;">${q.PRODUCT_NAME || q.product_name}</td>
+                            <td style="color:var(--mid); font-size:0.88em;">${q.QUESTION_TEXT || q.question_text}</td>
+                            <td style="min-width:260px;">
+                                <textarea id="ans-${q.QUESTION_ID || q.question_id}" placeholder="Type your answer..." style="height:60px; margin-bottom:8px;"></textarea>
+                                <button class="btn-approve" onclick="submitAnswer(${q.QUESTION_ID || q.question_id})">Post Answer</button>
+                            </td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+            } catch (err) { console.error("Fetch Error:", err); }
+        }
 
-    if (res.ok) {
-        input.value = newTotal; 
-    }
-}
-async function submitAnswer(qid) {
-    const text = document.getElementById(`ans-${qid}`).value;
-    if (!text) return alert("Please enter an answer!");
-    
-    const res = await fetch('/api/qa/answer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionId: qid, adminId: localStorage.getItem('adminId'), text })
-    });
-    
-    if (res.ok) {
-        alert("Answer posted!");
-        loadPendingQuestions(); // Refresh list
-    }
-}
+        async function submitAnswer(qid) {
+            const text = document.getElementById(`ans-${qid}`).value;
+            if (!text) return alert("Please enter an answer!");
+            const res = await fetch('/api/qa/answer', {
+                method: 'POST',headers: authHeaders(),
+                body: JSON.stringify({ questionId: qid, adminId: localStorage.getItem('adminId'), text })
+            });
+            if (res.ok) { alert("Answer posted!"); loadPendingQuestions(); }
+        }
+
+        async function loadInventory() {
+            try {
+                const [pRes, cRes] = await Promise.all([
+                    fetch('/api/admin/products-list'),
+                    fetch('/api/admin/colors-list')
+                ]);
+                const products = await pRes.json();
+                const colors = await cRes.json();
+                document.getElementById('inv-product').innerHTML = products.map(p => `<option value="${p.PRODUCT_ID}">${p.PRODUCT_NAME}</option>`).join('');
+                document.getElementById('inv-color').innerHTML = colors.map(c => `<option value="${c.COLOR_ID}">${c.COLOR_NAME}</option>`).join('');
+                loadColorStock();
+            } catch (err) { console.error("Error initializing inventory UI:", err); }
+        }
+
+        async function loadColorStock() {
+            const pId = document.getElementById('inv-product').value;
+            const cId = document.getElementById('inv-color').value;
+            const grid = document.getElementById('size-grid');
+            const msg = document.getElementById('inventory-status-msg');
+            try {
+                const res = await fetch(`/api/admin/get-color-stock?productId=${pId}&colorId=${cId}`, {
+    headers: authHeaders()
+});
+                const stockData = await res.json();
+                const stockMap = {};
+                stockData.forEach(item => { stockMap[item.SIZE_LABEL] = { id: item.VARIANT_ID, qty: item.STOCK_QUANTITY }; });
+
+                let html = '';
+                for (let size = 32; size <= 46; size += 2) {
+                    const sizeStr = size.toString();
+                    const data = stockMap[sizeStr] || { id: null, qty: 0 };
+                    html += `
+                    <div class="size-card">
+                        <label>Size ${size}</label>
+                        <div class="stock-count" style="color:${data.id ? 'var(--mid)' : 'var(--accent)'}">
+                            ${data.id ? 'Stock: ' + data.qty : 'Not Created'}
+                        </div>
+                        <input type="number" class="bulk-stock-input" data-size="${sizeStr}" value="${data.qty}">
+                    </div>`;
+                }
+                grid.innerHTML = html;
+                msg.innerText = "Edit quantities and click Update All below.";
+            } catch (err) { console.error("Load Error:", err); }
+        }
+
+        async function saveAllVisibleStock() {
+            const pId = document.getElementById('inv-product').value;
+            const cId = document.getElementById('inv-color').value;
+            const inputs = document.querySelectorAll('.bulk-stock-input');
+            for (const input of inputs) {
+                const sizeLabel = input.parentElement.querySelector('label').innerText.replace('Size ', '');
+                try {
+                    const res = await fetch('/api/admin/update-stock', {
+                        method: 'POST',headers: authHeaders(),
+                        body: JSON.stringify({ productId: Number(pId), colorId: Number(cId), sizeLabel, newStock: Number(input.value) })
+                    });
+                    if (!res.ok) { const error = await res.json(); console.error(`Error updating size ${sizeLabel}:`, error); }
+                } catch (err) { console.error("Fetch failed:", err); }
+            }
+            alert("Inventory updated!");
+            loadColorStock();
+        }
+
         async function submitProduct() {
             const data = {
                 name: document.getElementById('p-name').value,
@@ -394,84 +942,94 @@ async function submitAnswer(qid) {
                 price: Number(document.getElementById('p-price').value),
                 category: Number(document.getElementById('p-cat').value),
                 description: document.getElementById('p-desc').value,
-         
                 colorId: Number(document.getElementById('p-color').value),
                 sizeId: Number(document.getElementById('p-size').value),
                 stock: Number(document.getElementById('p-stock').value)
             };
-
-            if (!data.name || !data.price) {
-                alert("Please fill in the product name and price.");
-                return;
-            }
-
+            if (!data.name || !data.price) { alert("Please fill in the product name and price."); return; }
             try {
                 const res = await fetch('/api/admin/add-product', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST',headers: authHeaders(),
                     body: JSON.stringify(data)
                 });
-
                 if (res.ok) {
-                    alert("Product and Variant Added Successfully!");
-          
+                    alert("Product Added Successfully!");
                     document.getElementById('p-name').value = "";
                     document.getElementById('p-price').value = "";
-                } else {
-                    const errData = await res.json();
-                    alert("Error: " + errData.error);
-                }
-            } catch (err) {
-                console.error("Submission error:", err);
-                alert("Failed to connect to server.");
-            }
+                    document.getElementById('p-desc').value = "";
+                } else { const errData = await res.json(); alert("Error: " + errData.error); }
+            } catch (err) { alert("Failed to connect to server."); }
         }
-        async function loadAllOrders() {
+
+       async function loadAllOrders() {
     try {
-        const res = await fetch('/api/admin/all-orders');
+        const res = await fetch('/api/admin/all-orders', {
+    headers: authHeaders()
+});
         const orders = await res.json();
         const tbody = document.getElementById('orders-table-body');
 
-        if (orders.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px;'>No orders found.</td></tr>";
+        if (!orders.length) {
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;padding:30px;color:var(--mid);'>No orders found.</td></tr>";
             return;
         }
 
         tbody.innerHTML = orders.map(o => {
-            // Logic to pick a color based on status text
-            let statusClass = "status-tag";
-            if (o.ORDER_STATUS === 'Shipped') statusClass += " status-shipped";
-            if (o.ORDER_STATUS === 'Paid') statusClass += " status-paid";
+            const statusClass = `status-tag status-${(o.ORDER_STATUS || '').toLowerCase()}`;
+
+            let actionBtn = '';
+            if (o.ORDER_STATUS === 'Pending') {
+                actionBtn = `<button class="btn-approve" onclick="approveOrder(${o.ORDER_ID})">
+                                🚚 Approve & Ship
+                             </button>`;
+            } else if (o.ORDER_STATUS === 'Shipped') {
+                actionBtn = `<button class="btn-approve" style="background:#1565c0;"
+                                onclick="markDelivered(${o.ORDER_ID})">
+                                ✅ Mark Delivered
+                             </button>`;
+            } else if (o.ORDER_STATUS === 'Delivered') {
+                actionBtn = `<span style="color:var(--success); font-weight:600; font-size:0.85em;">✓ Delivered</span>`;
+            } else if (o.ORDER_STATUS === 'Cancelled') {
+                actionBtn = `<span style="color:var(--danger); font-size:0.85em;">Cancelled</span>`;
+            } else {
+                actionBtn = `<span style="color:var(--mid); font-size:0.82em;">${o.ORDER_STATUS}</span>`;
+            }
 
             return `
             <tr>
-                <td style="font-weight: bold; color: #333;">#${o.ORDER_ID}</td>
+                <td><strong style="color:var(--accent);">#${o.ORDER_ID}</strong></td>
                 <td>
-                    <div style="font-weight: 600;">${o.NAME}</div>
-                    <div style="font-size: 0.8em; color: #777;">Cust ID: ${o.CUSTOMER_ID}</div>
-                </td> 
-                <td style="font-weight: bold;">$${Number(o.TOTAL_AMOUNT).toFixed(2)}</td>
-                <td><span class="${statusClass}">${o.ORDER_STATUS}</span></td>
-                <td>
-                    ${o.ORDER_STATUS === 'Paid' || o.ORDER_STATUS === 'Pending'
-                        ? `<button class="btn-approve" onclick="approveOrder(${o.ORDER_ID})">Approve & Ship</button>`
-                        : '<b style="color: #28a745;">✓ Shipped</b>'}
+                    <div style="font-weight:600;">${o.NAME}</div>
+                    <div style="font-size:0.78em;color:var(--mid);">ID: ${o.CUSTOMER_ID}</div>
                 </td>
-            </tr>
-            `;
+                <td><strong>$${Number(o.TOTAL_AMOUNT).toFixed(2)}</strong></td>
+                <td><span class="${statusClass}">${o.ORDER_STATUS}</span></td>
+                <td>${actionBtn}</td>
+            </tr>`;
         }).join('');
     } catch (err) {
         console.error("Failed to load orders:", err);
     }
 }
-        async function approveOrder(id) {
-            await fetch('/api/admin/approve-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: id })
-            });
-            loadAllOrders();
-        }
+
+async function approveOrder(id) {
+    if (!confirm(`Approve and ship Order #${id}?`)) return;
+    await fetch('/api/admin/approve-order', {
+        method: 'POST',headers: authHeaders(),
+        body: JSON.stringify({ orderId: id })
+    });
+    loadAllOrders();
+}
+
+async function markDelivered(id) {
+    if (!confirm(`Mark Order #${id} as Delivered?`)) return;
+    const res = await fetch('/api/admin/mark-delivered', {
+        method: 'POST',headers: authHeaders(),
+        body: JSON.stringify({ orderId: id })
+    });
+    if (res.ok) loadAllOrders();
+    else alert("Failed to update order.");
+}
     </script>
 </body>
 

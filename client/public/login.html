@@ -111,7 +111,7 @@
                       
                         const userName = data.user.NAME || data.user.name;
                         const userId = data.user.CUSTOMER_ID || data.user.id;
-
+                        localStorage.setItem('token', data.token);
                         localStorage.setItem('customerId', userId);
                         localStorage.setItem('userName', userName);
                         localStorage.setItem('role', 'customer');

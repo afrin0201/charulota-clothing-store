@@ -1,352 +1,916 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Product Details - Charulota</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 40px; background: #f9f9f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .product-flex { display: flex; gap: 30px; margin-bottom: 40px; }
-        .product-img { width: 400px; height: 400px; object-fit: cover; border-radius: 8px; }
-        .qa-section { border-top: 2px solid #eee; padding-top: 20px; }
-        .qa-item { background: #f3f3f3; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
-        .answer { margin-left: 20px; color: #d63384; font-weight: 500; border-left: 3px solid #d63384; padding-left: 10px; margin-top: 10px; }
-        textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; padding: 10px; }
-        button { background: #333; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details — Charulota</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose:       #be185d;
+  --rose-dark:  #9d174d;
+  --rose-soft:  #fdf2f8;
+  --rose-mid:   #fbcfe8;
+  --ink:        #0f0a14;
+  --ink-mid:    #3d2e47;
+  --ink-faint:  #7c6d85;
+  --surface:    #faf9fb;
+  --panel:      #ffffff;
+  --border:     #ede7f0;
+  --green:      #15803d;
+  --green-bg:   #f0fdf4;
+  --red:        #be123c;
+  --red-bg:     #fff1f2;
+  --blue:       #1d4ed8;
+  --blue-bg:    #eff6ff;
+  --amber:      #b45309;
+  --amber-bg:   #fffbeb;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+}
+.topbar-brand span { color: var(--rose); }
+.topbar-nav { display: flex; align-items: center; gap: 8px; }
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--ink-faint);
+  padding: 7px 16px;
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+.back-btn:hover { border-color: var(--rose); color: var(--rose); }
+.cart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--rose-soft);
+  border: 1.5px solid var(--rose-mid);
+  color: var(--rose);
+  padding: 7px 16px;
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+.cart-btn:hover { background: var(--rose); color: #fff; }
+.cart-count {
+  background: var(--rose);
+  color: #fff;
+  border-radius: 50px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ── PAGE WRAP ── */
+.page {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+/* ── PRODUCT HERO ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.img-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  position: relative;
+}
+.img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.img-wrap:hover img { transform: scale(1.03); }
+.discount-ribbon {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--rose);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 50px;
+  letter-spacing: 0.5px;
+}
+
+/* ── PRODUCT INFO PANEL ── */
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.badge-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+  letter-spacing: 0.4px;
+}
+.badge-cat   { background: var(--blue-bg);   color: var(--blue); }
+.badge-brand { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-mid); }
+
+.product-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.price-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.price-was { font-size: 1rem; color: var(--ink-faint); text-decoration: line-through; }
+.price-now { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--rose); }
+.price-solo { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--ink); }
+
+.desc-text {
+  font-size: 0.88rem;
+  color: var(--ink-faint);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+/* ── PURCHASE NOTICE ── */
+.purchase-notice {
+  background: var(--blue-bg);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 9px 9px 0;
+  padding: 12px 16px;
+  font-size: 0.83rem;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+.purchase-notice strong { color: var(--blue); }
+
+/* ── SELECT CARD ── */
+.select-card {
+  background: var(--rose-soft);
+  border: 1.5px solid var(--rose-mid);
+  border-radius: 13px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.field-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.select-card select {
+  width: 100%;
+  padding: 9px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.18s;
+  cursor: pointer;
+}
+.select-card select:focus { border-color: var(--rose); }
+
+.stock-status { font-size: 0.82rem; font-weight: 600; min-height: 18px; }
+.stock-ok  { color: var(--green); }
+.stock-no  { color: var(--red); }
+
+.btn-cart {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--ink-faint);
+  color: #fff;
+  letter-spacing: 0.2px;
+}
+.btn-cart.ready { background: var(--rose); }
+.btn-cart.ready:hover { background: var(--rose-dark); transform: translateY(-1px); }
+.btn-cart.added  { background: var(--green); }
+.btn-cart:disabled { cursor: not-allowed; opacity: 0.7; }
+
+.btn-wish {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: 2px solid var(--rose);
+  background: #fff;
+  color: var(--rose);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-wish:hover { background: var(--rose-soft); }
+.btn-wish:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── CARD ── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  margin-bottom: 22px;
+}
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+/* ── REVIEW FORM ── */
+.review-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.review-row select,
+.review-row textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.18s, background 0.18s;
+}
+.review-row select:focus,
+.review-row textarea:focus { border-color: var(--rose); background: #fff; }
+.review-row textarea { height: 80px; resize: vertical; }
+
+.btn-post {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 10px 22px;
+  background: var(--rose);
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.16s;
+}
+.btn-post:hover { background: var(--rose-dark); transform: translateY(-1px); }
+
+/* ── Q&A ── */
+.qa-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.qa-q {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+  display: flex;
+  gap: 8px;
+}
+.qa-q::before { content: 'Q'; background: var(--rose-soft); color: var(--rose); font-weight: 700; font-size: 0.72rem; padding: 2px 7px; border-radius: 5px; flex-shrink: 0; margin-top: 1px; }
+.qa-a {
+  margin-top: 10px;
+  padding: 11px 15px;
+  border-left: 3px solid var(--rose);
+  background: var(--rose-soft);
+  border-radius: 0 9px 9px 0;
+  font-size: 0.85rem;
+  color: var(--ink-mid);
+  display: flex;
+  gap: 8px;
+}
+.qa-a-label { font-weight: 700; color: var(--rose); font-size: 0.78rem; flex-shrink: 0; margin-top: 1px; }
+.qa-pending { font-size: 0.78rem; color: var(--ink-faint); font-style: italic; margin-top: 6px; padding-left: 2px; }
+/* ── REVIEW DISPLAY ── */
+.review-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.review-item:last-child { border-bottom: none; }
+.review-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.reviewer-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--rose-soft);
+  border: 1.5px solid var(--rose-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--rose);
+  flex-shrink: 0;
+}
+.reviewer-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+.review-date {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+.review-stars { display: flex; gap: 2px; }
+.review-star-full  { color: #d97706; font-size: 0.85rem; }
+.review-star-empty { color: #e5e7eb; font-size: 0.85rem; }
+.review-text {
+  font-size: 0.88rem;
+  color: var(--ink-mid);
+  line-height: 1.65;
+  margin-top: 6px;
+}
+.reviews-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--rose-soft);
+  border-radius: 11px;
+  margin-bottom: 20px;
+}
+.summary-score {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--rose);
+  line-height: 1;
+}
+.summary-label {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+.no-reviews-msg {
+  text-align: center;
+  padding: 28px 0;
+  color: var(--ink-faint);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+.qa-ask-wrap {
+  margin-top: 16px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.qa-ask-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  display: block;
+}
+.qa-ask-wrap textarea {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  height: 74px;
+  resize: vertical;
+  transition: border-color 0.18s, background 0.18s;
+}
+.qa-ask-wrap textarea:focus { border-color: var(--rose); background: #fff; }
+
+/* ── PAGE LOAD ANIMATION ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero        { animation: fadeUp 0.45s ease both; }
+.card        { animation: fadeUp 0.45s ease both; }
+.card:nth-child(1) { animation-delay: 0.08s; }
+.card:nth-child(2) { animation-delay: 0.16s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  .topbar { padding: 0 16px; }
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .page { padding: 20px 16px 48px; }
+  .product-name { font-size: 1.6rem; }
+  .review-row { grid-template-columns: 1fr; }
+  .topbar-brand-text { display: none; }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rose-mid); border-radius: 6px; }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <button onclick="location.href='home.html'">← Back to Shop</button>
-    
-    <div class="product-flex">
-        <img id="p-img" src="" class="product-img">
-        <div>
-            <h1 id="p-name">Loading...</h1>
-            <div id="past-purchase-info"></div>
-            <h2 id="p-price" style="color: #d63384;"></h2>
-            <p id="p-desc"></p>
-            <p><strong>Brand:</strong> <span id="p-brand"></span></p>
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a class="topbar-brand" href="home.html">
+    <span>✿</span>
+    <span class="topbar-brand-text">Charulota</span>
+  </a>
+  <nav class="topbar-nav">
+    <a class="back-btn" href="home.html">← Back to Shop</a>
+    <a class="cart-btn" href="home.html#cart" onclick="localStorage.setItem('openCart','1')">
+  🛒 Cart <span class="cart-count" id="cart-count">0</span>
+</a>
+  </nav>
+</header>
 
-            <div class="selection-section" style="margin-top: 20px; padding: 15px; background: #fff0f6; border-radius: 8px;">
-    <div style="margin-bottom: 10px;">
-        <label><strong>Color:</strong></label>
-        <select id="det-color" onchange="checkStock()" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+
+    <!-- IMAGE -->
+    <div class="img-wrap">
+      <img id="p-img" src="https://via.placeholder.com/600x600?text=Loading..." alt="Product">
+      <div class="discount-ribbon" id="disc-ribbon" style="display:none;"></div>
     </div>
-    <div style="margin-bottom: 15px;">
-        <label><strong>Size:</strong></label>
-        <select id="det-size" onchange="checkStock()" style="width: 100%; padding: 8px; margin-top: 5px;"></select>
-    </div>
-    
-    <div id="stock-status" style="margin-bottom: 10px; font-weight: bold; font-size: 0.9em;"></div>
-    
-    <button id="add-to-cart-btn" onclick="addToCart()" disabled 
-            style="width: 100%; background: #ccc; transition: 0.3s;">
-        Select Color & Size
-    </button>
-</div>
+
+    <!-- INFO -->
+    <div class="info-panel">
+      <div class="badge-row">
+        <span class="badge badge-cat"   id="p-cat">—</span>
+        <span class="badge badge-brand" id="p-brand">—</span>
+      </div>
+
+      <h1 class="product-name" id="p-name">Loading product…</h1>
+
+      <div class="price-row" id="price-row">
+        <span class="price-solo" id="p-price">—</span>
+      </div>
+
+      <div id="purchase-notice-wrap"></div>
+
+      <p class="desc-text" id="p-desc">—</p>
+
+      <!-- SELECT CARD -->
+      <div class="select-card">
+        <div>
+          <label class="field-label">Colour</label>
+          <select id="det-color" onchange="checkStock()">
+            <option value="">— Select Colour —</option>
+          </select>
         </div>
+        <div>
+          <label class="field-label">Size</label>
+          <select id="det-size" onchange="checkStock()">
+            <option value="">— Select Size —</option>
+          </select>
+        </div>
+        <div id="stock-status" class="stock-status"></div>
+        <button class="btn-cart" id="btn-cart" onclick="addToCart()" disabled>
+          Select Colour &amp; Size
+        </button>
+        <button class="btn-wish" id="btn-wish" onclick="addToWishlist()">
+          ♡ &nbsp;Add to Wishlist
+        </button>
+      </div>
     </div>
-<div id="review-section" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-    <h4>Leave a Review</h4>
-    <select id="r-rating">
-        <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-        <option value="4">⭐⭐⭐⭐ (4)</option>
-        <option value="3">⭐⭐⭐ (3)</option>
-    </select>
-    <textarea id="r-text" placeholder="Share your experience..."></textarea>
-    <button onclick="submitReview()">Post Review</button>
-</div>
-    <div class="qa-section">
-        <h3>Community Q&A</h3>
-        <div id="qa-list">Loading questions...</div>
-        
-        <hr>
-        <h4>Have a question?</h4>
-        <textarea id="q-text" placeholder="Type your question here..."></textarea>
-        <button onclick="postQuestion()">Submit Question</button>
+  </div>
+
+  <!-- REVIEW SECTION (shown only if eligible) -->
+  <div class="card" id="review-card">
+    <div class="card-title">Leave a Review</div>
+    <div class="review-row">
+      <select id="r-rating">
+        <option value="5">★★★★★  (5)</option>
+        <option value="4">★★★★☆  (4)</option>
+        <option value="3">★★★☆☆  (3)</option>
+        <option value="2">★★☆☆☆  (2)</option>
+        <option value="1">★☆☆☆☆  (1)</option>
+      </select>
+      <textarea id="r-text" placeholder="Share your experience with this product…"></textarea>
     </div>
+    <button class="btn-post" onclick="submitReview()">Post Review</button>
+  </div>
+<!-- REVIEWS DISPLAY -->
+<div class="card" id="reviews-card">
+  <div class="card-title">Customer Reviews</div>
+  <div id="reviews-list">
+    <p style="color:var(--ink-faint); font-size:0.88rem;">Loading reviews…</p>
+  </div>
 </div>
+  <!-- Q&A -->
+  <div class="card">
+    <div class="card-title">Community Q&amp;A</div>
+    <div id="qa-list">
+      <p style="color:var(--ink-faint); font-size:0.88rem;">Loading questions…</p>
+    </div>
+    <div class="qa-ask-wrap">
+      <label class="qa-ask-label">Have a question?</label>
+      <textarea id="q-text" placeholder="Type your question here…"></textarea>
+      <button class="btn-post" onclick="postQuestion()">Submit Question</button>
+    </div>
+  </div>
+
+</div><!-- /page -->
 
 <script>
- const urlParams = new URLSearchParams(window.location.search);
-const productId = urlParams.get('id');
-let currentVariantId = null; // Global variable to track the user's selection
-
-
-
-async function checkReviewEligibility() {
-    const customerId = localStorage.getItem('customerId');
-    const reviewSection = document.getElementById('review-section');
-
-    if (!customerId) {
-        reviewSection.innerHTML = "<p>Please login to leave a review.</p>";
-        return;
-    }
-
-    try {
-        const res = await fetch(`/api/products/check-purchase?cid=${customerId}&pid=${productId}`);
-        const data = await res.json();
-
-        if (!data.eligible) {
-            reviewSection.style.display = 'none';
-        }
-    } catch (err) {
-        console.error("Eligibility check failed:", err);
-    }
+if (!localStorage.getItem('customerId') || !localStorage.getItem('userName')) {
+    window.location.href = 'login.html';
 }
 
-async function initPage() {
-    if (!productId) {
-        alert("Product ID is missing in the URL.");
-        return;
-    }
-    
-    await loadProductDetails();    
-    await loadAvailableOptions(); 
-    await loadQA();               
-    await checkReviewEligibility();
-    await checkPastPurchases(productId);
+function authHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+const urlParams  = new URLSearchParams(window.location.search);
+const productId  = urlParams.get('id');
+const CAT_MAP    = { 1: 'Women', 2: 'Men', 3: 'Kids' };
+let   variantId  = null;
+
+async function init() {
+  if (!productId) { alert('Product ID missing from URL.'); return; }
+  await loadProduct();
+  await loadOptions();
+  await loadQA();
+    await loadReviews();    
+  await checkReviewEligibility();
+  await loadPurchaseHistory();
+  updateCartCounter();
 }
 
-async function loadProductDetails() {
-    try {
-        const res = await fetch(`/api/products`);
-        const products = await res.json();
-        const p = products.find(x => x.PRODUCT_ID == productId);
+async function loadProduct() {
+  try {
+    const res      = await fetch('/api/products');
+    const products = await res.json();
+    const p        = products.find(x => x.PRODUCT_ID == productId);
+    if (!p) return;
 
-        if (p) {
-            document.getElementById('p-name').innerText = p.PRODUCT_NAME;
-            document.getElementById('p-price').innerText = `$${p.BASE_PRICE}`;
-            document.getElementById('p-desc').innerText = p.DESCRIPTION;
-            document.getElementById('p-brand').innerText = p.BRAND;
-            document.getElementById('p-img').src = p.PHOTOS || 'https://via.placeholder.com/400';
-        }
-    } catch (err) {
-        console.error("Error loading basic details:", err);
+    document.title = `${p.PRODUCT_NAME} — Charulota`;
+    document.getElementById('p-name').textContent  = p.PRODUCT_NAME  || 'Unnamed Product';
+    document.getElementById('p-brand').textContent = p.BRAND         || 'Charulota';
+    document.getElementById('p-cat').textContent   = CAT_MAP[p.CATEGORY_ID] || 'Fashion';
+    document.getElementById('p-desc').textContent  = p.DESCRIPTION   || 'No description available.';
+
+   const img = document.getElementById('p-img');
+  img.src = p.PHOTOS || '';
+  img.alt = p.PRODUCT_NAME;
+  img.onerror = function() {
+    this.onerror = null;
+    this.src = 'https://placehold.co/600x600/fdf2f8/be185d?text=No+Image';
+};
+    /* Price — respects admin discount */
+    const hasDiscount = p.DISCOUNT_PERCENT && Number(p.DISCOUNT_PERCENT) > 0;
+    const priceRow    = document.getElementById('price-row');
+    const ribbon      = document.getElementById('disc-ribbon');
+
+    if (hasDiscount) {
+      priceRow.innerHTML = `
+        <span class="price-was">$${Number(p.ORIGINAL_PRICE).toFixed(2)}</span>
+        <span class="price-now">$${Number(p.CURRENT_PRICE).toFixed(2)}</span>`;
+      ribbon.textContent = `${p.DISCOUNT_PERCENT}% OFF`;
+      ribbon.style.display = '';
+    } else {
+      priceRow.innerHTML =
+        `<span class="price-solo">$${Number(p.ORIGINAL_PRICE || p.BASE_PRICE || 0).toFixed(2)}</span>`;
     }
-}
-async function loadAvailableOptions() {
-    try {
-        const res = await fetch(`/api/products/details/${productId}`);
-        const data = await res.json();
-
-        const colorSelect = document.getElementById('det-color');
-        const sizeSelect = document.getElementById('det-size');
-
-        colorSelect.innerHTML = '<option value="">-- Choose Color --</option>' + 
-            data.colors.map(c => `<option value="${c.COLOR_ID}">${c.COLOR_NAME}</option>`).join('');
-
-        sizeSelect.innerHTML = '<option value="">-- Choose Size --</option>' + 
-            data.sizes.map(s => `<option value="${s.SIZE_ID}">${s.SIZE_LABEL}</option>`).join('');
-
-    } catch (err) {
-        console.error("Error loading dropdown options:", err);
-    }
-}
-async function updateCartUI() {
-    const customerId = localStorage.getItem('customerId');
-    if (!customerId) return;
-
-    try {
-        const res = await fetch(`/api/cart/${customerId}`);
-        const cartItems = await res.json();
-        
-        const cartNav = document.getElementById('cart-nav');
-        if (cartNav) {
-            cartNav.innerText = `Cart (${cartItems.length})`;
-            cartNav.style.fontWeight = 'bold';
-            cartNav.style.color = '#d63384';
-        }
-    } catch (err) {
-        console.error("Failed to update cart UI:", err);
-    }
+  } catch (err) { console.error('loadProduct:', err); }
 }
 
-updateCartUI();
+async function loadOptions() {
+  try {
+    const res  = await fetch(`/api/products/details/${productId}`);
+    const data = await res.json();
+
+    const colorSel = document.getElementById('det-color');
+    const sizeSel  = document.getElementById('det-size');
+
+    colorSel.innerHTML = '<option value="">— Select Colour —</option>' +
+      (data.colors || []).map(c =>
+        `<option value="${c.COLOR_ID}">${c.COLOR_NAME}</option>`).join('');
+
+    sizeSel.innerHTML = '<option value="">— Select Size —</option>' +
+      (data.sizes || []).map(s =>
+        `<option value="${s.SIZE_ID}">${s.SIZE_LABEL}</option>`).join('');
+  } catch (err) { console.error('loadOptions:', err); }
+}
+
 async function checkStock() {
-    const cId = document.getElementById('det-color').value;
-    const sId = document.getElementById('det-size').value;
-    const btn = document.getElementById('add-to-cart-btn');
-    const status = document.getElementById('stock-status');
+  const cId    = document.getElementById('det-color').value;
+  const sId    = document.getElementById('det-size').value;
+  const btn    = document.getElementById('btn-cart');
+  const status = document.getElementById('stock-status');
 
-    if (!cId || !sId) return;
+  if (!cId || !sId) { status.textContent = ''; return; }
 
-    try {
-        const res = await fetch(`/api/admin/get-stock?productId=${productId}&colorId=${cId}&sizeId=${sId}`);
-        const data = await res.json();
+  try {
+    const res  = await fetch(`/api/admin/get-stock?productId=${productId}&colorId=${cId}&sizeId=${sId}`);
+    const data = await res.json();
+    const stock = data.stock_quantity  !== undefined ? data.stock_quantity  : data.STOCK_QUANTITY;
+    const vId   = data.variant_id      !== undefined ? data.variant_id      : data.VARIANT_ID;
 
-        const stock = data.stock_quantity !== undefined ? data.stock_quantity : data.STOCK_QUANTITY;
-        const vId = data.variant_id !== undefined ? data.variant_id : data.VARIANT_ID;
-
-        if (vId && stock > 0) {
-            currentVariantId = vId;
-            btn.disabled = false;
-            btn.innerText = "Add to Cart";
-            btn.style.background = "#d63384"; // Pink active color
-            status.innerText = `In Stock: ${stock} available`;
-            status.style.color = "green";
-        } else {
-            currentVariantId = null;
-            btn.disabled = true;
-            btn.innerText = "Out of Stock";
-            btn.style.background = "#ccc";
-            status.innerText = "This combination is currently unavailable.";
-            status.style.color = "red";
-        }
-    } catch (err) {
-        console.error("Stock check error:", err);
+    if (vId && stock > 0) {
+      variantId           = vId;
+      btn.disabled        = false;
+      btn.className       = 'btn-cart ready';
+      btn.textContent     = 'Add to Cart';
+      status.className    = 'stock-status stock-ok';
+      status.textContent  = `✓ In stock — ${stock} available`;
+    } else {
+      variantId           = null;
+      btn.disabled        = true;
+      btn.className       = 'btn-cart';
+      btn.textContent     = 'Out of Stock';
+      status.className    = 'stock-status stock-no';
+      status.textContent  = 'This combination is currently unavailable.';
     }
+  } catch (err) { console.error('checkStock:', err); }
+}
+async function loadReviews() {
+  try {
+    const res  = await fetch(`/api/products/reviews/${productId}`, { headers: authHeaders() });
+    const data = await res.json();
+    const list = document.getElementById('reviews-list');
+
+    if (!data || !data.length) {
+      list.innerHTML = `<div class="no-reviews-msg">No reviews yet. Be the first to review this product!</div>`;
+      return;
+    }
+
+    const avg   = data.reduce((sum, r) => sum + Number(r.RATING), 0) / data.length;
+    const stars = n => Array.from({length: 5}, (_, i) =>
+      `<span class="${i < Math.round(n) ? 'review-star-full' : 'review-star-empty'}">★</span>`
+    ).join('');
+
+    list.innerHTML = `
+      <div class="reviews-summary">
+        <div class="summary-score">${avg.toFixed(1)}</div>
+        <div>
+          <div class="review-stars">${stars(avg)}</div>
+          <div class="summary-label">${data.length} review${data.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+      ${data.map(r => {
+        const initials = (r.CUSTOMER_NAME || 'A').trim().split(' ')
+          .map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        const date = new Date(r.REVIEW_DATE).toLocaleDateString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        });
+        return `
+          <div class="review-item">
+            <div class="review-meta">
+              <div class="reviewer-avatar">${initials}</div>
+              <div class="reviewer-name">${r.CUSTOMER_NAME || 'Customer'}</div>
+              <div class="review-stars">${stars(r.RATING)}</div>
+              <div class="review-date">${date}</div>
+            </div>
+            <div class="review-text">${r.REVIEW_TEXT || ''}</div>
+          </div>`;
+      }).join('')}`;
+  } catch (err) { console.error('loadReviews:', err); }
 }
 
 async function addToCart() {
-   const customerId = localStorage.getItem('customerId');
-    console.log("Debug - Adding to cart:", { customerId, variantId: currentVariantId }); // CHECK THIS
+  const customerId = localStorage.getItem('customerId');
+  if (!customerId) return alert('Please log in first.');
+  if (!variantId)  return alert('Please select a valid colour and size.');
 
-    if (!customerId) return alert("Please login first! customerId is missing.");
-    if (!currentVariantId) return alert("Please select a valid color and size.");
-    const res = await fetch('/api/cart/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId, variantId: currentVariantId, quantity: 1 })
-    });
+  const res = await fetch('/api/cart/add', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ customerId, variantId, quantity: 1 }),
+  });
 
-    if (res.ok) {
-        alert("Success! Added to cart.");
-        await updateCartUI();
-        updateCartCounter();
-
-        localStorage.setItem('cartTimestamp', Date.now());
-        const btn = document.getElementById('add-to-cart-btn');
-        btn.innerText = "✓ Added to Cart";
-        btn.style.background = "#28a745"; 
-        
-        setTimeout(() => {
-            btn.innerText = "Add to Cart";
-            btn.style.background = "#d63384";
-        }, 2000);
-    } else {
-        alert("Could not add to cart. Please try again.");
-    }
+  const btn = document.getElementById('btn-cart');
+  if (res.ok) {
+    btn.className   = 'btn-cart added';
+    btn.textContent = '✓ Added to Cart';
+    localStorage.setItem('cartTimestamp', Date.now());
+    updateCartCounter();
+    setTimeout(() => {
+      btn.className   = 'btn-cart ready';
+      btn.textContent = 'Add to Cart';
+    }, 2200);
+  } else {
+    alert('Could not add to cart. Please try again.');
+  }
 }
-async function updateCartCounter() {
-    const customerId = localStorage.getItem('customerId');
-    if (!customerId) return;
 
-    try {
-        const res = await fetch(`/api/cart/${customerId}`);
-        const items = await res.json();
-        
-        const countElement = document.getElementById('cart-count');
-        if (countElement) {
-            countElement.innerText = items.length; 
-            countElement.style.transform = "scale(1.2)";
-            setTimeout(() => { countElement.style.transform = "scale(1)"; }, 200);
-        }
-    } catch (err) {
-        console.error("Counter refresh failed:", err);
-    }
+async function addToWishlist() {
+  if (!variantId) return alert('Please select a colour and size first.');
+  const customerId = localStorage.getItem('customerId');
+  if (!customerId) return alert('Please log in first.');
+
+  const res = await fetch('/api/wishlist/add', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ customerId, variantId }),
+  });
+
+  const btn = document.getElementById('btn-wish');
+  if (res.ok) {
+    btn.textContent = '♥  Added to Wishlist';
+    btn.disabled    = true;
+  } else {
+    const err = await res.json();
+    alert(err.error === 'Already in wishlist' ? 'Already in your wishlist!' : 'Could not add to wishlist.');
+  }
+}
+
+async function checkReviewEligibility() {
+  const customerId = localStorage.getItem('customerId');
+  const card       = document.getElementById('review-card');
+  if (!customerId) { card.style.display = 'none'; return; }
+  try {
+    const res  = await fetch(`/api/products/check-purchase?cid=${customerId}&pid=${productId}`,
+      { headers: authHeaders() });
+    const data = await res.json();
+     console.log('Eligibility response:', res.status, data);
+    if (!data.eligible) card.style.display = 'none';
+  } catch (err) { console.error('checkReviewEligibility:', err); }
 }
 
 async function submitReview() {
-    const customerId = localStorage.getItem('customerId');
-    const rating = document.getElementById('r-rating').value;
-    const text = document.getElementById('r-text').value;
+  const customerId = localStorage.getItem('customerId');
+  const rating     = document.getElementById('r-rating').value;
+  const text       = document.getElementById('r-text').value.trim();
+  if (!customerId) return alert('Please log in to leave a review.');
+  if (!text)       return alert('Please write something in your review.');
 
-    if(!customerId) return alert("Please login to leave a review.");
+  const res = await fetch('/api/products/review', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ customerId, productId, rating, text }),
+  });
 
-    const res = await fetch('/api/products/review', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ customerId, productId, rating, text })
-    });
-
-    if(res.ok) {
-        alert("Review posted!");
-        location.reload(); 
-    } else {
-        const result = await res.json();
-        alert(result.error || "Failed to post review.");
-    }
+  if (res.ok) {
+    alert('Review posted!');
+    document.getElementById('r-text').value = '';
+    document.getElementById('review-card').style.display = 'none';
+    await loadReviews();
+  } else {
+    const r = await res.json();
+    alert(r.error || 'Failed to post review.');
+  }
 }
-async function checkPastPurchases(productId) {
-    const customerId = localStorage.getItem('customerId');
-    if (!customerId) return;
-
-    const res = await fetch(`/api/products/purchase-history?customerId=${customerId}&productId=${productId}`);
+async function loadPurchaseHistory() {
+  const customerId = localStorage.getItem('customerId');
+  if (!customerId) return;
+  try {
+    const res     = await fetch(`/api/products/purchase-history?customerId=${customerId}&productId=${productId}`);
     const history = await res.json();
-
-    const historyContainer = document.getElementById('past-purchase-info');
-    
-    if (history && history.length > 0) {
-        // Show a "You bought this before" message
-        const lastOrder = history[0];
-        const date = new Date(lastOrder.ORDER_DATE).toLocaleDateString();
-        
-        historyContainer.innerHTML = `
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #2196f3;">
-                <strong>✨ You've purchased this before!</strong><br>
-                Last ordered on ${date} (Order #${lastOrder.ORDER_ID}).<br>
-                Total bought: ${history.length} time(s).
-            </div>
-        `;
-    }
+    if (!history || !history.length) return;
+    const date = new Date(history[0].ORDER_DATE).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    document.getElementById('purchase-notice-wrap').innerHTML = `
+      <div class="purchase-notice">
+        <strong>✨ You've purchased this before</strong><br>
+        Last ordered ${date} (Order #${history[0].ORDER_ID}) · Bought ${history.length} time${history.length > 1 ? 's' : ''}.
+      </div>`;
+  } catch (err) { console.error('loadPurchaseHistory:', err); }
 }
+
 async function loadQA() {
-    try {
-        const res = await fetch(`/api/qa/${productId}`);
-        const data = await res.json();
-        const list = document.getElementById('qa-list');
-        
-        if (!data || data.length === 0) {
-            list.innerHTML = '<p>No questions yet. Be the first to ask!</p>';
-            return;
-        }
+  try {
+    const res  = await fetch(`/api/qa/${productId}`);
+    const data = await res.json();
+    const list = document.getElementById('qa-list');
 
-        list.innerHTML = data.map(item => {
-            const qText = item.QUESTION_TEXT || item.question_text || 'No question text';
-            const aText = item.ANSWER_TEXT || item.answer_text;
-            const aName = item.ADMIN_NAME || item.admin_name || 'Support';
-
-            return `
-            <div class="qa-item">
-                <p><strong>Question:</strong> ${qText}</p>
-                ${aText ? `
-                    <div class="answer">
-                        <p><strong>Admin ${aName}:</strong> ${aText}</p>
-                    </div>
-                ` : `<p style="color:gray; font-size:0.8em;">(Awaiting admin response...)</p>`}
-            </div>`;
-        }).join('');
-    } catch (err) {
-        console.error("QA Load Error:", err);
+    if (!data || !data.length) {
+      list.innerHTML = '<p style="color:var(--ink-faint);font-size:0.88rem;">No questions yet. Be the first to ask!</p>';
+      return;
     }
+
+    list.innerHTML = data.map(item => {
+      const qText = item.QUESTION_TEXT || item.question_text || '';
+      const aText = item.ANSWER_TEXT   || item.answer_text;
+      const aName = item.ADMIN_NAME    || item.admin_name    || 'Support';
+      return `
+        <div class="qa-item">
+          <div class="qa-q">${qText}</div>
+          ${aText
+            ? `<div class="qa-a"><span class="qa-a-label">${aName}</span>${aText}</div>`
+            : `<div class="qa-pending">Awaiting admin response…</div>`}
+        </div>`;
+    }).join('');
+  } catch (err) { console.error('loadQA:', err); }
 }
 
 async function postQuestion() {
-    const text = document.getElementById('q-text').value;
-    const customerId = localStorage.getItem('customerId');
+  const customerId = localStorage.getItem('customerId');
+  const text       = document.getElementById('q-text').value.trim();
+  if (!customerId) return alert('Please log in to ask a question.');
+  if (!text)       return alert('Please write your question first.');
 
-    if(!customerId) return alert("Please login to ask a question!");
-    if(!text) return alert("Write something first!");
+  const res = await fetch('/api/qa/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerId, productId, text }),
+  });
 
-    const res = await fetch('/api/qa/ask', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ customerId, productId, text })
-    });
-
-    if(res.ok) {
-        alert("Question posted!");
-        document.getElementById('q-text').value = '';
-        loadQA(); 
-    }
+  if (res.ok) {
+    alert('Question submitted!');
+    document.getElementById('q-text').value = '';
+    loadQA();
+  }
 }
 
-initPage();
+async function updateCartCounter() {
+  const customerId = localStorage.getItem('customerId');
+  if (!customerId) return;
+  try {
+    const res   = await fetch(`/api/cart/${customerId}`, { headers: authHeaders() });
+    const items = await res.json();
+    const el    = document.getElementById('cart-count');
+    const total = items.reduce((sum, item) => sum + (item.QUANTITY || 1), 0);
+    if (el) el.textContent = total;
+  } catch (err) { console.error('updateCartCounter:', err); }
+}
+init();
 </script>
 </body>
 </html>
-
-

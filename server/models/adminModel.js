@@ -14,7 +14,6 @@ const adminModel = {
             if (result.rows.length === 0) return null;
 
             const admin = result.rows[0];
-            // In production, use bcrypt.compare here!
             if (admin.PASSWORD === password) {
                 return { id: admin.ADMIN_ID, name: admin.NAME };
             }
@@ -33,7 +32,7 @@ async addProduct(name, brand, price, category, description, colorId, sizeId, sto
 
         await conn.execute(
             `INSERT INTO Product (product_id, product_name, brand, base_price, category_id, description)
-             VALUES (:id, :name, :brand, :price, :cat, :p_desc)`, // Changed :desc to :p_desc
+             VALUES (:id, :name, :brand, :price, :cat, :p_desc)`, 
             { 
                 id: sharedId, 
                 name: name, 
@@ -84,6 +83,93 @@ async addProduct(name, brand, price, category, description, colorId, sizeId, sto
             if (conn) await conn.close();
         }
     },
+    async getDiscountsList() {
+    let conn;
+    try {
+        conn = await getConnection();
+        const result = await conn.execute(
+            `SELECT d.DISCOUNT_ID, d.DISCOUNT_CODE, d.PERCENTAGE, d.START_DATE, d.END_DATE,
+                    p.PRODUCT_NAME
+             FROM Discount d
+             JOIN Product p ON p.DISCOUNT_ID = d.DISCOUNT_ID
+             ORDER BY d.START_DATE DESC`,
+            [],
+            { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        return result.rows;
+    } finally {
+        if (conn) await conn.close();
+    }
+},
+
+async saveDiscount(productId, discountCode, percent, start, end) {
+    let conn;
+    try {
+        conn = await getConnection();
+
+        const result = await conn.execute(`SELECT DISCOUNT_SEQ.NEXTVAL FROM dual`);
+        const discountId = result.rows[0][0];
+          console.log("=== DISCOUNT DEBUG ===");
+        console.log("discountId:", discountId);
+        console.log("discountCode:", discountCode);
+        console.log("percent:", percent);
+        console.log("start:", start);
+        console.log("end:", end);
+        console.log("types:", typeof discountId, typeof discountCode, typeof percent, typeof start, typeof end);
+
+        await conn.execute(
+            `INSERT INTO Discount (DISCOUNT_ID, DISCOUNT_CODE, PERCENTAGE, START_DATE, END_DATE)
+             VALUES (:discId, :discCode, :discPct, TO_DATE(:discStart, 'YYYY-MM-DD'), TO_DATE(:discEnd, 'YYYY-MM-DD'))`,
+            {
+                discId:    discountId,
+                discCode:  discountCode,
+                discPct:   Number(percent),
+                discStart: start,
+                discEnd:   end
+            }
+        );
+
+        await conn.execute(
+            `UPDATE Product SET DISCOUNT_ID = :discId WHERE PRODUCT_ID = :prodId`,
+            { discId: discountId, prodId: Number(productId) }
+        );
+
+        await conn.commit();
+        return discountId;
+    } catch (err) {
+        if (conn) await conn.rollback();
+        throw err;
+    } finally {
+        if (conn) await conn.close();
+    }
+},
+
+async removeDiscount(discountId) {
+    let conn;
+    try {
+        conn = await getConnection();
+
+        // 1. Unlink from product first
+        await conn.execute(
+            `UPDATE Product SET DISCOUNT_ID = NULL WHERE DISCOUNT_ID = :did`,
+            { did: Number(discountId) }
+        );
+
+        // 2. Delete the discount record
+        await conn.execute(
+            `DELETE FROM Discount WHERE DISCOUNT_ID = :did`,
+            { did: Number(discountId) }
+        );
+
+        await conn.commit();
+        return { success: true };
+    } catch (err) {
+        if (conn) await conn.rollback();
+        throw err;
+    } finally {
+        if (conn) await conn.close();
+    }
+},
 
   async  updateStock(variantId, newTotalQuantity) {
     let conn;
@@ -115,10 +201,11 @@ async addProduct(name, brand, price, category, description, colorId, sizeId, sto
                 { outFormat: oracledb.OUT_FORMAT_OBJECT }
             );
             return result.rows;
-        } finally {
-            if (conn) await conn.close();
-        }
-    }
+    } catch (err) {
+        throw err;
+    } finally {
+        if (conn) await conn.close();
+    }}
 };
 
 module.exports = adminModel;

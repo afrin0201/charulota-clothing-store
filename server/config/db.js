@@ -1,7 +1,6 @@
 const oracledb = require('oracledb');
 const path = require('path');
 
-// Since .env is in the same folder as this file (config/), we use __dirname
 require('dotenv').config({ path: path.join(__dirname, '.env') }); 
 
 const dbConfig = {
@@ -11,7 +10,6 @@ const dbConfig = {
 };
 
 async function getConnection() {
-  // Let's verify if it's working now
   if (!dbConfig.connectString) {
     console.log("❌ Still missing! Check if your file is named exactly .env (no .txt)");
     console.log("Looking in:", path.join(__dirname, '.env'));
